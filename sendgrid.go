@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"flag"
-	"os"
-	"io/ioutil"
-	"strings"
+	"fmt"
 	"github.com/sendgrid/sendgrid-go"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	for _, recipient := range recipients {
 		message.AddTo(recipient)
 	}
-//	message.AddToName("Yamil Asusta")
+
 	message.SetSubject(*subject)
 
 	b, err := ioutil.ReadAll(os.Stdin)
