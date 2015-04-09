@@ -5,12 +5,13 @@ import (
 	"flag"
 	"os"
 	"io/ioutil"
+	"strings"
 	"github.com/sendgrid/sendgrid-go"
 )
 
 func main() {
-	var username = os.Getenv("SENDGRID_USERNAME")
-	var password = os.Getenv("SENDGRID_PASSWORD")
+	username := os.Getenv("SENDGRID_USERNAME")
+	password := os.Getenv("SENDGRID_PASSWORD")
 
 	if username == "" {
 		panic("SENDGRID_USERNAME environment variable not set")
@@ -20,8 +21,8 @@ func main() {
 		panic("SENDGRID_PASSWORD environment variable not set")
 	}
 
-	var subject = flag.String("s", "", "Subject")
-	var from = flag.String("f", "", "From")
+	subject := flag.String("s", "", "Subject")
+	from := flag.String("f", "", "From")
 	flag.Parse()
 
 	if *subject == "" || *from == "" {
@@ -31,7 +32,8 @@ func main() {
 
 	sg := sendgrid.NewSendGridClient(username, password)
 	message := sendgrid.NewMail()
-	for _, recipient := range flag.Args() {
+	recipients := strings.Split(flag.Args()[len(flag.Args())-1], ",")
+	for _, recipient := range recipients {
 		message.AddTo(recipient)
 	}
 //	message.AddToName("Yamil Asusta")
