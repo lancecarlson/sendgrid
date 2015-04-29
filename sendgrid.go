@@ -37,8 +37,10 @@ func main() {
 
 	subject := flag.String("s", "", "Subject")
 	from := flag.String("f", "", "From")
+	ccs := flag.String("cc", "", "CC (comma delimited)")
+	bccs := flag.String("bcc", "", "BCC (comma delimited)")
 	var attachments flagSlice
-	flag.Var(&attachments, "a", "Attachments")
+	flag.Var(&attachments, "a", "Attachment")
 	flag.Parse()
 
 	if *subject == "" || *from == "" {
@@ -49,10 +51,10 @@ func main() {
 	sg := sendgrid.NewSendGridClient(username, password)
 	message := sendgrid.NewMail()
 	recipients := strings.Split(flag.Args()[len(flag.Args())-1], ",")
-	for _, recipient := range recipients {
-		message.AddTo(recipient)
-	}
-
+	message.AddTos(recipients)
+	message.AddCcs(strings.Split(*ccs, ","))
+	message.AddBccs(strings.Split(*bccs, ","))
+	
 	message.SetSubject(*subject)
 
 	b, err := ioutil.ReadAll(os.Stdin)
