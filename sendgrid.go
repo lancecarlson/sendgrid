@@ -9,6 +9,20 @@ import (
 	"strings"
 )
 
+type flagSlice []string
+
+func (f *flagSlice) String() string {
+	return fmt.Sprint(*f)
+}
+
+func (f *flagSlice) Set(value string) error {
+	if *f == nil {
+		*f = make(flagSlice, 0)
+	}
+	*f = append(*f, value)
+	return nil
+}
+
 func main() {
 	username := os.Getenv("SENDGRID_USERNAME")
 	password := os.Getenv("SENDGRID_PASSWORD")
@@ -23,6 +37,8 @@ func main() {
 
 	subject := flag.String("s", "", "Subject")
 	from := flag.String("f", "", "From")
+	var attachments flagSlice
+	flag.Var(&attachments, "a", "Attachments")
 	flag.Parse()
 
 	if *subject == "" || *from == "" {
@@ -44,8 +60,17 @@ func main() {
 		panic(err)
 	}
 	message.SetText(string(b))
-
 	message.SetFrom(*from)
+
+	for _, attachment := range attachments {
+		r, err := os.Open(attachment)
+		if err != nil {
+			panic(err)
+		}
+		message.AddAttachment(attachment, r)
+	}
+
+	/* Send Message */
 	if r := sg.Send(message); r == nil {
 		fmt.Println("Email sent!")
 	} else {
